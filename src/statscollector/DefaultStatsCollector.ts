@@ -454,43 +454,18 @@ export default class DefaultStatsCollector implements StatsCollector {
       return;
     }
     const rawMetricReports: RawMetricReport[] = [];
-    if (!this.browserBehavior.requiresPromiseBasedWebRTCGetStats()) {
-      // @ts-ignore
-      this.audioVideoController.rtcPeerConnection.getStats(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (res: any) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          res.result().forEach((report: any) => {
-            const item: { [name: string]: StatsReportItem } = {};
-            report.names().forEach((name: string) => {
-              item[name] = report.stat(name);
-            });
-            item.id = report.id;
-            item.type = report.type;
-            item.timestamp = report.timestamp;
-            rawMetricReports.push(item);
-          });
-          this.handleRawMetricReports(rawMetricReports);
-        },
-        // @ts-ignore
-        (error: Error) => {
-          this.logger.error(error.message);
-        }
-      );
-    } else {
-      // @ts-ignore
-      this.audioVideoController.rtcPeerConnection
-        .getStats()
-        .then((report: RTCStatsReport) => {
-          report.forEach((item: StatsReportItem) => {
-            rawMetricReports.push(item);
-          });
-          this.handleRawMetricReports(rawMetricReports);
-        })
-        .catch((error: Error) => {
-          this.logger.error(error.message);
+    // @ts-ignore
+    this.audioVideoController.rtcPeerConnection
+      .getStats()
+      .then((report: RTCStatsReport) => {
+        report.forEach((item: StatsReportItem) => {
+          rawMetricReports.push(item);
         });
-    }
+        this.handleRawMetricReports(rawMetricReports);
+      })
+      .catch((error: Error) => {
+        this.logger.error(error.message);
+      });
   }
 
   private compareMajorVersion(version: string): number {
